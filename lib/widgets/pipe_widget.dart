@@ -7,8 +7,8 @@ class PipeWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: 840,
       width: 52,
-      height: MediaQuery.of(context).size.height,
       child: SingleChildScrollView(
         physics: NeverScrollableScrollPhysics(),
         child: Column(
@@ -18,11 +18,13 @@ class PipeWidget extends StatelessWidget {
               angle: pi,
               child: Image.asset(
                 AssetName.sprites.greenPipe,
+                fit: BoxFit.fitHeight,
               ),
             ),
             SizedBox(height: 100),
             Image.asset(
               AssetName.sprites.greenPipe,
+              fit: BoxFit.fitHeight,
             ),
           ],
         ),
