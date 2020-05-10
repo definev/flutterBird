@@ -89,8 +89,8 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   bool isEndGame() {
-    if (_birdPos.pos <= 320 + -100 * _ranNum[currentPoint] ||
-        _birdPos.pos >= 420 + -100 * _ranNum[currentPoint]) {
+    if (_birdPos.pos <= 350 + -100 * _ranNum[currentPoint] ||
+        _birdPos.pos >= 360 + -100 * _ranNum[currentPoint]) {
       isEnd = true;
       return true;
     } else {
