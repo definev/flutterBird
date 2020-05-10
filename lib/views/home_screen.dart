@@ -1,3 +1,4 @@
+import 'dart:html';
 import 'dart:math';
 
 import 'package:flappyBird/utils/bird_pos.dart';
@@ -10,6 +11,7 @@ import 'package:flappyBird/widgets/pipe_widget.dart';
 import 'package:flappyBird/widgets/position_anmated_custom.dart';
 import 'package:flappyBird/widgets/score_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -32,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen>
   bool isTap = false;
   bool init = false;
 
+  FocusNode _spaceNode = FocusNode();
   SpeedFactor _speedFactor = SpeedFactor();
   BirdPos _birdPos;
   Random random = Random();
@@ -126,100 +129,115 @@ class _HomeScreenState extends State<HomeScreen>
         _controller.jumpTo(0);
       });
     }
+    FocusScope.of(context).requestFocus(_spaceNode);
 
-    return GestureDetector(
-      onTap: () {
-        print(_birdPos.pos);
-        if (isStart == false) {
-          setState(() {
-            isStart = true;
+    return RawKeyboardListener(
+      focusNode: _spaceNode,
+      autofocus: true,
+      onKey: (RawKeyEvent event) {
+        print(event.physicalKey);
+        if (event.logicalKey.keyId == KeyCode.SPACE &&
+            event.runtimeType == RawKeyDownEvent) {
+          if (isStart == false) {
+            setState(() {
+              isStart = true;
+            });
+          }
+          isTap = true;
+          Future.delayed(Duration(milliseconds: 150), () {
+            isTap = false;
           });
         }
-        isTap = true;
-        Future.delayed(Duration(milliseconds: 150), () {
-          isTap = false;
-        });
       },
-      child: Container(
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
-        color: Colors.white,
-        child: FittedBox(
-          child: SizedBox(
-            height: height,
-            width: width,
-            child: Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage(
-                    AssetName.sprites.backgroundDay,
+      child: GestureDetector(
+        onTap: () {
+          if (isStart == false) isStart = true;
+          isTap = true;
+          Future.delayed(Duration(milliseconds: 150), () {
+            isTap = false;
+          });
+        },
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          color: Colors.white,
+          child: FittedBox(
+            child: SizedBox(
+              height: height,
+              width: width,
+              child: Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage(
+                      AssetName.sprites.backgroundDay,
+                    ),
+                    fit: BoxFit.cover,
                   ),
-                  fit: BoxFit.cover,
                 ),
-              ),
-              child: Stack(
-                children: [
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    controller: _controller,
-                    // physics: NeverScrollableScrollPhysics(),
-                    child: Row(
-                      children: List.generate(
-                        pipe,
-                        (index) {
-                          if (index == 0) {
-                            return SizedBox(width: startOffset);
-                          } else if (index % 2 == 0 && index != 0) {
-                            return Transform.translate(
-                              offset:
-                                  Offset(0, -100 * _ranNum[(index - 2) ~/ 2]),
-                              child: PipeWidget(),
-                            );
-                          } else {
-                            return SizedBox(width: 100);
+                child: Stack(
+                  children: [
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      controller: _controller,
+                      // physics: NeverScrollableScrollPhysics(),
+                      child: Row(
+                        children: List.generate(
+                          pipe,
+                          (index) {
+                            if (index == 0) {
+                              return SizedBox(width: startOffset);
+                            } else if (index % 2 == 0 && index != 0) {
+                              return Transform.translate(
+                                offset:
+                                    Offset(0, -100 * _ranNum[(index - 2) ~/ 2]),
+                                child: PipeWidget(),
+                              );
+                            } else {
+                              return SizedBox(width: 100);
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                    AnimatedPositionedCustom(
+                      duration: Duration(milliseconds: 2500),
+                      left: 80,
+                      top: birdPosition(),
+                      child: Opacity(
+                        opacity: isStart ? 1 : 0,
+                        child: BirdWidget(),
+                      ),
+                    ),
+                    Center(
+                      child: MessageWidget(
+                        isStart: isStart,
+                      ),
+                    ),
+                    (isStart)
+                        ? Padding(
+                            padding: const EdgeInsets.only(bottom: 500),
+                            child: Center(
+                              child: ScoreWidget(
+                                score: currentPoint,
+                                isStart: isStart,
+                              ),
+                            ),
+                          )
+                        : Container(),
+                    Positioned(
+                      top: height - 100,
+                      child: Builder(
+                        builder: (context) {
+                          if (_animationController.value == 1) {
+                            _animationController.value = 0;
+                            _animationController.forward();
                           }
+                          return BaseWidget(value: _animationController.value);
                         },
                       ),
                     ),
-                  ),
-                  AnimatedPositionedCustom(
-                    duration: Duration(milliseconds: 2500),
-                    left: 80,
-                    top: birdPosition(),
-                    child: Opacity(
-                      opacity: isStart ? 1 : 0,
-                      child: BirdWidget(),
-                    ),
-                  ),
-                  Center(
-                    child: MessageWidget(
-                      isStart: isStart,
-                    ),
-                  ),
-                  isStart
-                      ? Padding(
-                          padding: const EdgeInsets.only(bottom: 500),
-                          child: Center(
-                            child: ScoreWidget(
-                              score: currentPoint,
-                              isStart: isStart,
-                            ),
-                          ),
-                        )
-                      : Container(),
-                  Positioned(
-                    top: height - 100,
-                    child: Builder(
-                      builder: (context) {
-                        if (_animationController.value == 1) {
-                          _animationController.value = 0;
-                          _animationController.forward();
-                        }
-                        return BaseWidget(value: _animationController.value);
-                      },
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
