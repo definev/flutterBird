@@ -1,0 +1,1 @@
+export 'asset_name.dart';
