@@ -25,6 +25,8 @@ class _HomeScreenState extends State<HomeScreen>
   int currentOffset = 0;
   double startOffset = 200;
   int pipe = 200;
+  double height = 600;
+  double width = 300;
   bool isEnd = false;
   bool isStart = false;
   bool isTap = false;
@@ -64,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen>
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (isStart == true) {
           _controller.jumpTo(getSpeedPipe());
-          if (onCollision() - getSpeedPipe() <= 25) {
+          if (onCollision() - getSpeedPipe() <= 0) {
             if (isEndGame()) {
             } else
               currentPoint++;
@@ -72,6 +74,10 @@ class _HomeScreenState extends State<HomeScreen>
           if (!isEnd) {
             currentOffset++;
           } else {
+            isStart = false;
+            isEnd = false;
+          }
+          if (_birdPos.pos == height - 130) {
             isStart = false;
             isEnd = false;
           }
@@ -96,14 +102,14 @@ class _HomeScreenState extends State<HomeScreen>
       ((_speedFactor.speedGame) * currentOffset).toDouble();
 
   double onCollision() =>
-      (startOffset + 52 + (52 + 100) * (currentPoint)).toDouble();
+      (startOffset + 25 + (52 + 100) * (currentPoint)).toDouble();
 
   double birdPosition() {
-    if (isStart == false) return MediaQuery.of(context).size.height / 2 - 50;
+    if (isStart == false) return height / 2 - 50;
     if (isTap) {
       return 0;
     } else {
-      return MediaQuery.of(context).size.height - 130;
+      return height - 130;
     }
   }
 
@@ -115,6 +121,7 @@ class _HomeScreenState extends State<HomeScreen>
     }
     if (isStart == false && isEnd == false) {
       currentPoint = 0;
+      currentOffset = 0;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _controller.jumpTo(0);
       });
@@ -134,78 +141,86 @@ class _HomeScreenState extends State<HomeScreen>
         });
       },
       child: Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
         color: Colors.white,
-        child: Center(
-          child: Container(
-            height: 1920,
-            width: 1080,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(
-                  AssetName.sprites.backgroundDay,
+        child: FittedBox(
+          child: SizedBox(
+            height: height,
+            width: width,
+            child: Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage(
+                    AssetName.sprites.backgroundDay,
+                  ),
+                  fit: BoxFit.cover,
                 ),
-                fit: BoxFit.cover,
               ),
-            ),
-            child: Stack(
-              children: [
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  controller: _controller,
-                  // physics: NeverScrollableScrollPhysics(),
-                  child: Row(
-                    children: List.generate(
-                      pipe,
-                      (index) {
-                        if (index == 0) {
-                          return SizedBox(width: startOffset);
-                        } else if (index % 2 == 0 && index != 0) {
-                          return Transform.translate(
-                            offset: Offset(0, -100 * _ranNum[(index - 2) ~/ 2]),
-                            child: PipeWidget(),
-                          );
-                        } else {
-                          return SizedBox(width: 100);
+              child: Stack(
+                children: [
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    controller: _controller,
+                    // physics: NeverScrollableScrollPhysics(),
+                    child: Row(
+                      children: List.generate(
+                        pipe,
+                        (index) {
+                          if (index == 0) {
+                            return SizedBox(width: startOffset);
+                          } else if (index % 2 == 0 && index != 0) {
+                            return Transform.translate(
+                              offset:
+                                  Offset(0, -100 * _ranNum[(index - 2) ~/ 2]),
+                              child: PipeWidget(),
+                            );
+                          } else {
+                            return SizedBox(width: 100);
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                  AnimatedPositionedCustom(
+                    duration: Duration(milliseconds: 2500),
+                    left: 80,
+                    top: birdPosition(),
+                    child: Opacity(
+                      opacity: isStart ? 1 : 0,
+                      child: BirdWidget(),
+                    ),
+                  ),
+                  Center(
+                    child: MessageWidget(
+                      isStart: isStart,
+                    ),
+                  ),
+                  isStart
+                      ? Padding(
+                          padding: const EdgeInsets.only(bottom: 500),
+                          child: Center(
+                            child: ScoreWidget(
+                              score: currentPoint,
+                              isStart: isStart,
+                            ),
+                          ),
+                        )
+                      : Container(),
+                  Positioned(
+                    top: height - 100,
+                    child: Builder(
+                      builder: (context) {
+                        if (_animationController.value == 1) {
+                          _animationController.value = 0;
+                          _animationController.forward();
                         }
+                        return BaseWidget(value: _animationController.value);
                       },
                     ),
                   ),
-                ),
-                AnimatedPositionedCustom(
-                  duration: Duration(milliseconds: 2500),
-                  left: 80,
-                  top: birdPosition(),
-                  child: BirdWidget(),
-                ),
-                Center(
-                  child: MessageWidget(
-                    isStart: isStart,
-                  ),
-                ),
-                isStart
-                    ? Padding(
-                        padding: const EdgeInsets.only(bottom: 500),
-                        child: Center(
-                          child: ScoreWidget(
-                            score: currentPoint,
-                            isStart: isStart,
-                          ),
-                        ),
-                      )
-                    : Container(),
-                Positioned(
-                  top: MediaQuery.of(context).size.height - 100,
-                  child: Builder(
-                    builder: (context) {
-                      if (_animationController.value == 1) {
-                        _animationController.value = 0;
-                        _animationController.forward();
-                      }
-                      return BaseWidget(value: _animationController.value);
-                    },
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

@@ -19,13 +19,7 @@ class ScoreWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (score < 10) {
-      return AnimatedOpacity(
-        duration: Duration(milliseconds: 500),
-        opacity: isStart ? 1 : 0,
-        child: Image.asset(
-          'assets/sprites/$score.png',
-        ),
-      );
+      return Image.asset('assets/sprites/$score.png');
     } else {
       List<int> _score = splitScore();
       return Row(
@@ -33,8 +27,7 @@ class ScoreWidget extends StatelessWidget {
         children: List.generate(
           _score.length,
           (index) => Image.asset(
-            'assets/sprites/${_score[_score.length - index - 1]}.png',
-          ),
+              'assets/sprites/${_score[_score.length - index - 1]}.png'),
         ),
       );
     }
