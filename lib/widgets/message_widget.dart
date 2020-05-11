@@ -1,17 +1,27 @@
 import 'package:flappyBird/utils/utils.dart';
+import 'package:flappyBird/widgets/score_widget.dart';
 import 'package:flutter/material.dart';
 
 class MessageWidget extends StatelessWidget {
   final bool isStart;
-
-  const MessageWidget({Key key, this.isStart}) : super(key: key);
+  final int score;
+  const MessageWidget({Key key, this.isStart, this.score}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return AnimatedOpacity(
       duration: Duration(milliseconds: 500),
       opacity: isStart ? 0 : 1,
-      child: Image.asset(
-        AssetName.sprites.message,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            AssetName.sprites.message,
+          ),
+          SizedBox(height: 10),
+          ScoreWidget(
+            score: score,
+          ),
+        ],
       ),
     );
   }

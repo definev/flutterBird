@@ -1,6 +1,8 @@
 import 'dart:html';
 import 'dart:math';
 
+import 'package:flappyBird/utils/bird_pos.dart';
+import 'package:flappyBird/utils/speed_factor.dart';
 import 'package:flappyBird/utils/utils.dart';
 import 'package:flappyBird/widgets/base_widget.dart';
 import 'package:flappyBird/widgets/bird_widget.dart';
@@ -24,10 +26,11 @@ class _HomeScreenState extends State<HomeScreen>
   int currentPoint = 0;
   int currentOffset = 0;
   double startOffset = 200;
-  int pipe = 300;
+  int pipe = 200;
   int highScore = 0;
   double height = 600;
   double width = 300;
+
   bool isEnd = false;
   bool isStart = false;
   bool isTap = false;
@@ -62,18 +65,17 @@ class _HomeScreenState extends State<HomeScreen>
     _animationController.forward();
     _ranNum = List.generate(pipe, (index) => random.nextDouble());
 
-    setSpeed(12, 2);
+    setSpeed(10, 2);
 
     _animationController.addListener(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (isStart == true) {
-          double speedPipe = getSpeedPipe();
-          double collision = onCollision();
-          _controller.jumpTo(speedPipe);
-
-          if (speedPipe - collision <= 42 && speedPipe - collision >= -42) {
-            isEndGame();
-          } else if (speedPipe - collision > 42) currentPoint++;
+          _controller.jumpTo(getSpeedPipe());
+          if (getSpeedPipe() - onCollision() >= -42.0 &&
+              getSpeedPipe() - onCollision() <= 42.0) {
+            if (isEndGame()) {
+            } else if (getSpeedPipe() - onCollision() == 41) currentPoint++;
+          }
           if (!isEnd) {
             currentOffset++;
           } else {
@@ -85,18 +87,22 @@ class _HomeScreenState extends State<HomeScreen>
             isEnd = false;
           }
         }
+
         setState(() {});
       });
     });
   }
 
-  void isEndGame() {
-    if (_birdPos.pos <= 315 + -100 * _ranNum[currentPoint] ||
-        _birdPos.pos >= 390 + -100 * _ranNum[currentPoint]) {
+  bool isEndGame() {
+    if (_birdPos.pos <= 320 + -100 * _ranNum[currentPoint] ||
+        _birdPos.pos >= 385 + -100 * _ranNum[currentPoint]) {
       isEnd = true;
+      return true;
+    } else {
       if (highScore < currentPoint) {
         highScore = currentPoint;
       }
+      return false;
     }
   }
 
@@ -104,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen>
       ((_speedFactor.speedGame) * currentOffset).toDouble();
 
   double onCollision() =>
-      (startOffset + 26 + (52 + 100) * (currentPoint)).toDouble();
+      (startOffset + 25 + (52 + 100) * (currentPoint)).toDouble();
 
   double birdPosition() {
     if (isStart == false) return height / 2 - 50;
@@ -127,8 +133,8 @@ class _HomeScreenState extends State<HomeScreen>
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _controller.jumpTo(0);
       });
-      FocusScope.of(context).requestFocus(_spaceNode);
     }
+    FocusScope.of(context).requestFocus(_spaceNode);
 
     return RawKeyboardListener(
       focusNode: _spaceNode,
@@ -136,7 +142,11 @@ class _HomeScreenState extends State<HomeScreen>
       onKey: (RawKeyEvent event) {
         if (event.logicalKey.keyId == KeyCode.SPACE &&
             event.runtimeType == RawKeyDownEvent) {
-          if (isStart == false) isStart = true;
+          if (isStart == false) {
+            setState(() {
+              isStart = true;
+            });
+          }
           isTap = true;
           Future.delayed(Duration(milliseconds: 150), () {
             isTap = false;
@@ -152,6 +162,8 @@ class _HomeScreenState extends State<HomeScreen>
           });
         },
         child: Container(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
           color: Colors.white,
           child: FittedBox(
             child: SizedBox(
@@ -171,10 +183,10 @@ class _HomeScreenState extends State<HomeScreen>
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       controller: _controller,
-                      physics: NeverScrollableScrollPhysics(),
+                      // physics: NeverScrollableScrollPhysics(),
                       child: Row(
                         children: List.generate(
-                          pipe * 2,
+                          pipe,
                           (index) {
                             if (index == 0) {
                               return SizedBox(width: startOffset);
@@ -200,6 +212,12 @@ class _HomeScreenState extends State<HomeScreen>
                         child: BirdWidget(),
                       ),
                     ),
+                    Center(
+                      child: MessageWidget(
+                        isStart: isStart,
+                        score: highScore,
+                      ),
+                    ),
                     (isStart)
                         ? Padding(
                             padding: const EdgeInsets.only(bottom: 500),
@@ -221,25 +239,6 @@ class _HomeScreenState extends State<HomeScreen>
                           }
                           return BaseWidget(value: _animationController.value);
                         },
-                      ),
-                    ),
-                    Center(
-                      child: MessageWidget(
-                        isStart: isStart,
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Padding(
-                        padding: EdgeInsets.only(bottom: 120),
-                        child: AnimatedOpacity(
-                          duration: Duration(milliseconds: 500),
-                          opacity: isStart ? 0 : 1,
-                          child: ScoreWidget(
-                            key: UniqueKey(),
-                            score: highScore,
-                          ),
-                        ),
                       ),
                     ),
                   ],
