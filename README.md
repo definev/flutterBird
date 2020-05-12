@@ -8,5 +8,5 @@ A Clone flappy bird made with flutter.
 
 ## Demo at
 
-[Demo](https://definev.github.io/flutterBird/#/)
+(https://definev.github.io/flutterBird/#/)
 
