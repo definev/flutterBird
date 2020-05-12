@@ -1,5 +1,4 @@
-import 'dart:html';
-
+// import 'dart:html'; // For Web only
 import 'dart:math';
 
 import 'package:flappyBird/utils/bird_pos.dart';
@@ -149,22 +148,8 @@ class _HomeScreenState extends State<HomeScreen>
       focusNode: _spaceNode,
       autofocus: true,
       onKey: (RawKeyEvent event) {
-        // For Web
-        if (event.logicalKey.keyId == KeyCode.SPACE &&
-            event.runtimeType == RawKeyDownEvent) {
-          if (isStart == false) {
-            setState(() {
-              isStart = true;
-            });
-          }
-          isTap = true;
-          Future.delayed(Duration(milliseconds: 150), () {
-            isTap = false;
-          });
-        }
-
-        // For Windows and MacOS
-        // if (event.logicalKey == LogicalKeyboardKey.space &&
+        /// For [Web]
+        // if (event.logicalKey.keyId == KeyCode.SPACE &&
         //     event.runtimeType == RawKeyDownEvent) {
         //   if (isStart == false) {
         //     setState(() {
@@ -176,6 +161,20 @@ class _HomeScreenState extends State<HomeScreen>
         //     isTap = false;
         //   });
         // }
+
+        /// For [Windows] and [MacOS]
+        if (event.logicalKey == LogicalKeyboardKey.space &&
+            event.runtimeType == RawKeyDownEvent) {
+          if (isStart == false) {
+            setState(() {
+              isStart = true;
+            });
+          }
+          isTap = true;
+          Future.delayed(Duration(milliseconds: 150), () {
+            isTap = false;
+          });
+        }
       },
       child: GestureDetector(
         onTap: () {
@@ -206,7 +205,7 @@ class _HomeScreenState extends State<HomeScreen>
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     controller: _controller,
-                    physics: NeverScrollableScrollPhysics(),
+                    // physics: NeverScrollableScrollPhysics(),
                     child: Row(
                       children: List.generate(
                         pipe,
