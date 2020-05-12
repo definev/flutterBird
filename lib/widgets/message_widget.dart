@@ -17,7 +17,7 @@ class MessageWidget extends StatelessWidget {
           Image.asset(
             AssetName.sprites.message,
           ),
-          SizedBox(height: 10),
+          SizedBox(height: 30),
           ScoreWidget(
             score: score,
           ),

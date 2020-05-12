@@ -1,7 +1,9 @@
 import 'dart:html';
+
 import 'dart:math';
 
 import 'package:flappyBird/utils/bird_pos.dart';
+import 'package:flappyBird/utils/shared.dart';
 import 'package:flappyBird/utils/speed_factor.dart';
 import 'package:flappyBird/utils/utils.dart';
 import 'package:flappyBird/widgets/base_widget.dart';
@@ -26,10 +28,11 @@ class _HomeScreenState extends State<HomeScreen>
   int currentPoint = 0;
   int currentOffset = 0;
   double startOffset = 200;
-  int pipe = 200;
+  int pipe = 300;
   int highScore = 0;
-  double height = 600;
-  double width = 300;
+  double height = 600.0;
+  double width = 350.0;
+  double range = -100.0;
 
   bool isEnd = false;
   bool isStart = false;
@@ -74,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen>
           if (getSpeedPipe() - onCollision() >= -42.0 &&
               getSpeedPipe() - onCollision() <= 42.0) {
             if (isEndGame()) {
-            } else if (getSpeedPipe() - onCollision() == 41) currentPoint++;
+            } else if (getSpeedPipe() - onCollision() == 41.0) currentPoint++;
           }
           if (!isEnd) {
             currentOffset++;
@@ -94,13 +97,14 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   bool isEndGame() {
-    if (_birdPos.pos <= 320 + -100 * _ranNum[currentPoint] ||
-        _birdPos.pos >= 385 + -100 * _ranNum[currentPoint]) {
+    if (_birdPos.pos <= 320 + range * _ranNum[currentPoint] ||
+        _birdPos.pos >= 385 + range * _ranNum[currentPoint]) {
       isEnd = true;
       return true;
     } else {
       if (highScore < currentPoint) {
         highScore = currentPoint;
+        setHighScore(highScore);
       }
       return false;
     }
@@ -121,10 +125,15 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
+  initHighScore() async {
+    highScore = await getHighScore();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (init == false) {
       _birdPos = Provider.of<BirdPos>(context);
+      initHighScore();
       init = true;
     }
     if (isStart == false && isEnd == false) {
@@ -140,6 +149,7 @@ class _HomeScreenState extends State<HomeScreen>
       focusNode: _spaceNode,
       autofocus: true,
       onKey: (RawKeyEvent event) {
+        // For Web
         if (event.logicalKey.keyId == KeyCode.SPACE &&
             event.runtimeType == RawKeyDownEvent) {
           if (isStart == false) {
@@ -152,6 +162,20 @@ class _HomeScreenState extends State<HomeScreen>
             isTap = false;
           });
         }
+
+        // For Windows and MacOS
+        // if (event.logicalKey == LogicalKeyboardKey.space &&
+        //     event.runtimeType == RawKeyDownEvent) {
+        //   if (isStart == false) {
+        //     setState(() {
+        //       isStart = true;
+        //     });
+        //   }
+        //   isTap = true;
+        //   Future.delayed(Duration(milliseconds: 150), () {
+        //     isTap = false;
+        //   });
+        // }
       },
       child: GestureDetector(
         onTap: () {
@@ -169,80 +193,78 @@ class _HomeScreenState extends State<HomeScreen>
             child: SizedBox(
               height: height,
               width: width,
-              child: Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage(
+              child: Stack(
+                children: [
+                  SizedBox(
+                    height: height - 100,
+                    width: width,
+                    child: Image.asset(
                       AssetName.sprites.backgroundDay,
+                      fit: BoxFit.fitWidth,
                     ),
-                    fit: BoxFit.cover,
                   ),
-                ),
-                child: Stack(
-                  children: [
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      controller: _controller,
-                      // physics: NeverScrollableScrollPhysics(),
-                      child: Row(
-                        children: List.generate(
-                          pipe,
-                          (index) {
-                            if (index == 0) {
-                              return SizedBox(width: startOffset);
-                            } else if (index % 2 == 0 && index != 0) {
-                              return Transform.translate(
-                                offset:
-                                    Offset(0, -100 * _ranNum[(index - 2) ~/ 2]),
-                                child: PipeWidget(),
-                              );
-                            } else {
-                              return SizedBox(width: 100);
-                            }
-                          },
-                        ),
-                      ),
-                    ),
-                    AnimatedPositionedCustom(
-                      duration: Duration(milliseconds: 2500),
-                      left: 80,
-                      top: birdPosition(),
-                      child: Opacity(
-                        opacity: isStart ? 1 : 0,
-                        child: BirdWidget(),
-                      ),
-                    ),
-                    Center(
-                      child: MessageWidget(
-                        isStart: isStart,
-                        score: highScore,
-                      ),
-                    ),
-                    (isStart)
-                        ? Padding(
-                            padding: const EdgeInsets.only(bottom: 500),
-                            child: Center(
-                              child: ScoreWidget(
-                                score: currentPoint,
-                                isStart: isStart,
-                              ),
-                            ),
-                          )
-                        : Container(),
-                    Positioned(
-                      top: height - 100,
-                      child: Builder(
-                        builder: (context) {
-                          if (_animationController.value == 1) {
-                            _animationController.value = 0;
-                            _animationController.forward();
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    controller: _controller,
+                    physics: NeverScrollableScrollPhysics(),
+                    child: Row(
+                      children: List.generate(
+                        pipe,
+                        (index) {
+                          if (index == 0) {
+                            return SizedBox(width: startOffset);
+                          } else if (index % 2 == 0 && index != 0) {
+                            return Transform.translate(
+                              offset:
+                                  Offset(0, range * _ranNum[(index - 2) ~/ 2]),
+                              child: PipeWidget(),
+                            );
+                          } else {
+                            return SizedBox(width: 100);
                           }
-                          return BaseWidget(value: _animationController.value);
                         },
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  AnimatedPositionedCustom(
+                    duration: Duration(milliseconds: 2500),
+                    left: 80,
+                    top: birdPosition(),
+                    child: Opacity(
+                      opacity: isStart ? 1 : 0,
+                      child: BirdWidget(),
+                    ),
+                  ),
+                  Center(
+                    child: MessageWidget(
+                      isStart: isStart,
+                      score: highScore,
+                    ),
+                  ),
+                  (isStart)
+                      ? Padding(
+                          padding: const EdgeInsets.only(bottom: 500),
+                          child: Center(
+                            child: ScoreWidget(
+                              score: currentPoint,
+                              isStart: isStart,
+                            ),
+                          ),
+                        )
+                      : Container(),
+                  Positioned(
+                    top: height - 100,
+                    child: Builder(
+                      builder: (context) {
+                        if (_animationController.value == 1) {
+                          _animationController.value = 0;
+                          _animationController.forward();
+                        }
+                        return BaseWidget(value: _animationController.value);
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
