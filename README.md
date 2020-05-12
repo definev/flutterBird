@@ -1,4 +1,4 @@
-# Flutter Flappy Bird 🎮 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)(https://img.shields.io/github/stars/definev/flutterBird)(https://img.shields.io/github/stars/definev/flutterBird)](http://makeapullrequest.com)
+# Flutter Flappy Bird 🎮 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square) ![Star](https://img.shields.io/github/stars/definev/flutterBird?style=flat-square) ![Folk](https://img.shields.io/github/forks/definev/flutterBird?style=flat-square)](http://makeapullrequest.com)
 
 ⭐️ this repo if you like it.
 
