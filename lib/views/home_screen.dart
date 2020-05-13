@@ -1,16 +1,9 @@
-// import 'dart:html'; // For Web only
+import 'dart:html'; // For Web only
 import 'dart:math';
 
-import 'package:flappyBird/utils/bird_pos.dart';
-import 'package:flappyBird/utils/shared.dart';
-import 'package:flappyBird/utils/speed_factor.dart';
 import 'package:flappyBird/utils/utils.dart';
-import 'package:flappyBird/widgets/base_widget.dart';
-import 'package:flappyBird/widgets/bird_widget.dart';
-import 'package:flappyBird/widgets/message_widget.dart';
-import 'package:flappyBird/widgets/pipe_widget.dart';
-import 'package:flappyBird/widgets/position_anmated_custom.dart';
-import 'package:flappyBird/widgets/score_widget.dart';
+import 'package:flappyBird/widgets/widget.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -76,7 +69,10 @@ class _HomeScreenState extends State<HomeScreen>
           if (getSpeedPipe() - onCollision() >= -42.0 &&
               getSpeedPipe() - onCollision() <= 42.0) {
             if (isEndGame()) {
-            } else if (getSpeedPipe() - onCollision() == 41.0) currentPoint++;
+            } else if (getSpeedPipe() - onCollision() == 41.0) {
+              PlayAudio.playAudio(AssetName.audio.pointOGG);
+              currentPoint++;
+            }
           }
           if (!isEnd) {
             currentOffset++;
@@ -98,7 +94,13 @@ class _HomeScreenState extends State<HomeScreen>
   bool isEndGame() {
     if (_birdPos.pos <= 320 + range * _ranNum[currentPoint] ||
         _birdPos.pos >= 385 + range * _ranNum[currentPoint]) {
+      PlayAudio.playAudio(AssetName.audio.hitOGG);
       isEnd = true;
+      Future.delayed(Duration(milliseconds: 250), () {
+        PlayAudio.playAudio(AssetName.audio.dieOGG);
+        Future.delayed(Duration(milliseconds: 250),
+            () => PlayAudio.playAudio(AssetName.audio.swooshWAV));
+      });
       return true;
     } else {
       if (highScore < currentPoint) {
@@ -149,9 +151,25 @@ class _HomeScreenState extends State<HomeScreen>
       autofocus: true,
       onKey: (RawKeyEvent event) {
         /// For [Web]
-        // if (event.logicalKey.keyId == KeyCode.SPACE &&
+        if (event.logicalKey.keyId == KeyCode.SPACE &&
+            event.runtimeType == RawKeyDownEvent) {
+          if (isStart == false) {
+            setState(() {
+              isStart = true;
+            });
+          }
+          PlayAudio.playAudio(AssetName.audio.wingOGG);
+          isTap = true;
+          Future.delayed(Duration(milliseconds: 150), () {
+            isTap = false;
+          });
+        }
+
+        /// For [Windows] and [MacOS]
+        // if (event.logicalKey == LogicalKeyboardKey.space &&
         //     event.runtimeType == RawKeyDownEvent) {
         //   if (isStart == false) {
+        //     PlayAudio.playAudio(AssetName.audio.wingOGG);
         //     setState(() {
         //       isStart = true;
         //     });
@@ -161,23 +179,10 @@ class _HomeScreenState extends State<HomeScreen>
         //     isTap = false;
         //   });
         // }
-
-        /// For [Windows] and [MacOS]
-        if (event.logicalKey == LogicalKeyboardKey.space &&
-            event.runtimeType == RawKeyDownEvent) {
-          if (isStart == false) {
-            setState(() {
-              isStart = true;
-            });
-          }
-          isTap = true;
-          Future.delayed(Duration(milliseconds: 150), () {
-            isTap = false;
-          });
-        }
       },
       child: GestureDetector(
         onTap: () {
+          PlayAudio.playAudio(AssetName.audio.wingOGG);
           if (isStart == false) isStart = true;
           isTap = true;
           Future.delayed(Duration(milliseconds: 150), () {

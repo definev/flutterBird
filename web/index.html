@@ -16,6 +16,16 @@
 
   <title>flappyBird</title>
   <link rel="manifest" href="manifest.json">
+  <script src="https://cdn.jsdelivr.net/npm/howler@2.1.3/dist/howler.min.js"></script>
+    <script type="application/javascript">
+      var audio;
+      function playAudio(path) {
+        audio= new Howl({
+          src: [path]
+        });
+        audio.play();
+      }
+    </script>
 </head>
 <body>
   <!-- This script installs service_worker.js to provide PWA functionality to
