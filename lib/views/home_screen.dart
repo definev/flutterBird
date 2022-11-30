@@ -1,9 +1,7 @@
-import 'dart:html'; // For Web only
 import 'dart:math';
 
 import 'package:flappyBird/utils/utils.dart';
 import 'package:flappyBird/widgets/widget.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -151,19 +149,19 @@ class _HomeScreenState extends State<HomeScreen>
       autofocus: true,
       onKey: (RawKeyEvent event) {
         /// For [Web]
-        if (event.logicalKey.keyId == KeyCode.SPACE &&
-            event.runtimeType == RawKeyDownEvent) {
-          if (isStart == false) {
-            setState(() {
-              isStart = true;
-            });
-          }
-          PlayAudio.playAudio(AssetName.audio.wingOGG);
-          isTap = true;
-          Future.delayed(Duration(milliseconds: 150), () {
-            isTap = false;
-          });
-        }
+        // if (event.logicalKey.keyId == KeyCode.SPACE &&
+        //     event.runtimeType == RawKeyDownEvent) {
+        //   if (isStart == false) {
+        //     setState(() {
+        //       isStart = true;
+        //     });
+        //   }
+        //   PlayAudio.playAudio(AssetName.audio.wingOGG);
+        //   isTap = true;
+        //   Future.delayed(Duration(milliseconds: 150), () {
+        //     isTap = false;
+        //   });
+        // }
 
         /// For [Windows] and [MacOS]
         // if (event.logicalKey == LogicalKeyboardKey.space &&

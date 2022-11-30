@@ -1,0 +1,29 @@
+PODS:
+  - Flutter (1.0.0)
+  - shared_preferences (0.0.1):
+    - Flutter
+  - Snapyr (1.1.1)
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
+  - Snapyr
+
+SPEC REPOS:
+  trunk:
+    - Snapyr
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  shared_preferences:
+    :path: ".symlinks/plugins/shared_preferences/ios"
+
+SPEC CHECKSUMS:
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
+  Snapyr: 3b5f6560cbddb5680f1c6b45e9d724342c92cad0
+
+PODFILE CHECKSUM: c5cbd24f11fe8b2b861a435a6f40066c6c663529
+
+COCOAPODS: 1.11.3
